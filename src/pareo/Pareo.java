@@ -56,7 +56,7 @@ public class Pareo extends JFrame{
     JTextField fieldArchivo = new JTextField();
     JTextField[] field1Guardar = new JTextField[10];
     JTextField[] field2Guardar = new JTextField[10];
-    ArrayList<JMenuItem> ItemArchivo = new ArrayList<JMenuItem>();
+    ArrayList<JMenuItem> ItemArchivoCargar = new ArrayList<JMenuItem>();
     ArrayList<JMenuItem> ItemArchivoModificar = new ArrayList<JMenuItem>();
     String archivo = "";
     String archivoSeleccionado = "";
@@ -105,9 +105,9 @@ public class Pareo extends JFrame{
             
             int i = 0;
             while(rs.next()){
-                ItemArchivo.add(new JMenuItem(rs.getString("archivo")));
+                ItemArchivoCargar.add(new JMenuItem(rs.getString("archivo")));
                 ItemArchivoModificar.add(new JMenuItem(rs.getString("archivo")));
-                cargar.add(ItemArchivo.get(i));
+                cargar.add(ItemArchivoCargar.get(i));
                 modificar.add(ItemArchivoModificar.get(i));
                 i++;
             }
@@ -124,7 +124,7 @@ public class Pareo extends JFrame{
                     try {
                         Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
             
-                        PreparedStatement pst = (PreparedStatement) cn.prepareStatement("SELECT * FROM " + ItemArchivo.get(i).getText().toLowerCase());
+                        PreparedStatement pst = (PreparedStatement) cn.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
                         ResultSet rs = pst.executeQuery();
             
                         int count = 0;
@@ -136,7 +136,7 @@ public class Pareo extends JFrame{
             
                         Connection cn2 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
             
-                        PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("SELECT * FROM " + ItemArchivo.get(i).getText().toLowerCase());
+                        PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
                         ResultSet rs2 = pst2.executeQuery();
             
                         Integer id[] = new Integer[count];
@@ -163,7 +163,7 @@ public class Pareo extends JFrame{
                         }
             
                         Connection cn3 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-                        PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("select * from " + ItemArchivo.get(i).getText().toLowerCase() + " where ID = ?");
+                        PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("select * from " + ItemArchivoCargar.get(i).getText().toLowerCase() + " where ID = ?");
             
                         for(int m = 0; m < count; m++){
                             for(int r = 0; r < count; r++){
@@ -199,7 +199,7 @@ public class Pareo extends JFrame{
             }  
         };
         for(int i = 0; i < registros; i++){
-            ItemArchivo.get(i).addActionListener(eventoCargar);
+            ItemArchivoCargar.get(i).addActionListener(eventoCargar);
         }
         
         ActionListener eventoModificar = new ActionListener(){
@@ -211,9 +211,6 @@ public class Pareo extends JFrame{
                     }
                 }
                 VentanaModificar();
-                    try{
-                        Thread.sleep(500);
-                    }catch(Exception r){}
                 CargarDatosGuardados();
             }  
         };
@@ -633,9 +630,11 @@ public class Pareo extends JFrame{
             Statement st = cn.createStatement();
             ResultSet rs = st.executeQuery("select * from archivos");
             
+            //Actualizar el nombre de archivo en la pestaña "Cargar" y "Modificar"
             int i = 0;
             while(rs.next()){
-                ItemArchivo.get(i).setText(rs.getString("archivo"));
+                ItemArchivoCargar.get(i).setText(rs.getString("archivo"));
+                ItemArchivoModificar.get(i).setText(rs.getString("archivo"));
                 i++;
             }
             }catch(Exception e){}
@@ -663,7 +662,7 @@ public class Pareo extends JFrame{
                     try {
                         Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
             
-                        PreparedStatement pst = (PreparedStatement) cn.prepareStatement("SELECT * FROM " + ItemArchivo.get(i).getText().toLowerCase());
+                        PreparedStatement pst = (PreparedStatement) cn.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
                         ResultSet rs = pst.executeQuery();
             
                         int count = 0;
@@ -675,7 +674,7 @@ public class Pareo extends JFrame{
             
                         Connection cn2 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
             
-                        PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("SELECT * FROM " + ItemArchivo.get(i).getText().toLowerCase());
+                        PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
                         ResultSet rs2 = pst2.executeQuery();
             
                         Integer id[] = new Integer[count];
@@ -702,7 +701,7 @@ public class Pareo extends JFrame{
                         }
             
                         Connection cn3 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-                        PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("select * from " + ItemArchivo.get(i).getText().toLowerCase() + " where ID = ?");
+                        PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("select * from " + ItemArchivoCargar.get(i).getText().toLowerCase() + " where ID = ?");
             
                         for(int m = 0; m < count; m++){
                             for(int r = 0; r < count; r++){
@@ -739,8 +738,10 @@ public class Pareo extends JFrame{
         };
             
             for(int i = 0; i < registros; i++){
-            ItemArchivo.get(i).addActionListener(evento);
+            ItemArchivoCargar.get(i).addActionListener(evento);
             }
+            
+            JOptionPane.showMessageDialog(null, "Archivo modificado correctamente");
         } else{
             if(campoVacio == true){
                 JOptionPane.showMessageDialog(null, "Por favor llena todos los campos");
@@ -881,9 +882,9 @@ public class Pareo extends JFrame{
             
             int i = 0;
             while(rs.next()){
-                ItemArchivo.add(new JMenuItem());
-                cargar.add(ItemArchivo.get(i));
-                ItemArchivo.get(i).setText(rs.getString("archivo"));
+                ItemArchivoCargar.add(new JMenuItem());
+                cargar.add(ItemArchivoCargar.get(i));
+                ItemArchivoCargar.get(i).setText(rs.getString("archivo"));
                 i++;
             }
             
@@ -897,7 +898,7 @@ public class Pareo extends JFrame{
                     try {
                         Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
             
-                        PreparedStatement pst = (PreparedStatement) cn.prepareStatement("SELECT * FROM " + ItemArchivo.get(i).getText().toLowerCase());
+                        PreparedStatement pst = (PreparedStatement) cn.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
                         ResultSet rs = pst.executeQuery();
             
                         int count = 0;
@@ -909,7 +910,7 @@ public class Pareo extends JFrame{
             
                         Connection cn2 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
             
-                        PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("SELECT * FROM " + ItemArchivo.get(i).getText().toLowerCase());
+                        PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
                         ResultSet rs2 = pst2.executeQuery();
             
                         Integer id[] = new Integer[count];
@@ -936,7 +937,7 @@ public class Pareo extends JFrame{
                         }
             
                         Connection cn3 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-                        PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("select * from " + ItemArchivo.get(i).getText().toLowerCase() + " where ID = ?");
+                        PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("select * from " + ItemArchivoCargar.get(i).getText().toLowerCase() + " where ID = ?");
             
                         for(int m = 0; m < count; m++){
                             for(int r = 0; r < count; r++){
@@ -973,7 +974,7 @@ public class Pareo extends JFrame{
         };
         
         for(int i = 0; i < registros; i++){
-            ItemArchivo.get(i).addActionListener(evento);
+            ItemArchivoCargar.get(i).addActionListener(evento);
         }
     }
     
