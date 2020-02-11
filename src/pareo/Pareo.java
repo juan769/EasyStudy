@@ -75,13 +75,6 @@ public class Pareo extends JFrame{
         r = t.getScreenSize().width*(d/100);
         return (int)r;
     }
-    
-    int pwh(double d){
-        double r = 0;
-        Toolkit t = Toolkit.getDefaultToolkit();
-        double s = ph(8) + (ph(7.8)*(5));
-        return (int)s;
-    }
 
     public Pareo(){
         this.setLayout(null);
@@ -128,9 +121,7 @@ public class Pareo extends JFrame{
         for(int i = 0; i < 10; i++, ik += 7.8){
             field1[i] = new JTextField();
             field1[i].setBounds(pw(7.8),ph(ik),pw(21),ph(4.8));
-            field1[i].setVisible(true);
-            System.out.println("2: " + ph(ik));
-            
+            field1[i].setVisible(true);            
             field1[i].setBorder(r);
             field1[i].setBorder(BorderFactory.createCompoundBorder(field1[i].getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5)));
             
@@ -336,14 +327,11 @@ public class Pareo extends JFrame{
             for(int i = 0; i < 10; i++){
                 ik = 8;
                 for(int j = 1; j <= 10; j++, ik += 7.8){
-                    if(Integer.parseInt(field3[i].getText()) == j){
-                        
+                    if(Integer.parseInt(field3[i].getText()) == j){  
                         if(field1[i].getBounds().contains(pw(7.8),ph(ik),pw(21),ph(4.8))){
-                            System.out.println("IZZ");
                             checkVerde[i].setLocation(field3[i].getX()-pw(1.45), field3[i].getY()+ph(1.6));
                             checkVerde[i].setVisible(true);
                         } else{
-                            System.out.println("ONN");
                             checkRojo[i].setLocation(field3[i].getX()-pw(1.45), field3[i].getY()+ph(1.6));
                             checkRojo[i].setVisible(true);
                         }
