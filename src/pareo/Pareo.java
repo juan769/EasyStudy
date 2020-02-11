@@ -1,17 +1,14 @@
 
 package pareo;
 
-import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.PreparedStatement;
 import java.awt.Color;
+
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -30,16 +27,16 @@ import javax.swing.JTextField;
  */
 public class Pareo extends JFrame{
     
+    static Pareo pareo;
     JLabel fondo1 = new JLabel();
     JLabel fondo2 = new JLabel();
-    JTextField[] field1 = new JTextField[10];
-    JTextField[] field2 = new JTextField[10]; 
+    static JTextField[] field1 = new JTextField[10];
+    static JTextField[] field2 = new JTextField[10]; 
     JTextField[] field3 = new JTextField[10];
     JLabel checkVerde[] = new JLabel[10];
     JLabel checkRojo[] = new JLabel[10];
-    JPanel panel = new JPanel();
-    JPanel panel2 = new JPanel();
-    JPanel panel3 = new JPanel();
+    JPanel panelFondo = new JPanel();
+    JPanel panelComponentes = new JPanel();
     JPanel botonPanel = new JPanel();
     JPanel botonPanelRevisar = new JPanel();
     JPanel botonPanelRevolver = new JPanel();
@@ -50,26 +47,43 @@ public class Pareo extends JFrame{
     JLabel numeros[] = new JLabel[10];
     JMenuBar menubar = new JMenuBar();
     JMenu menu = new JMenu("Opciones");
-    JMenu cargar = new JMenu("Cargar");
-    JMenu modificar = new JMenu("Modificar");
+    static JMenu cargar = new JMenu("Cargar");
+    static JMenu modificar = new JMenu("Modificar");
     JMenuItem guardar = new JMenuItem("Guardar");
-    JTextField fieldArchivo = new JTextField();
-    JTextField[] field1Guardar = new JTextField[10];
-    JTextField[] field2Guardar = new JTextField[10];
-    ArrayList<JMenuItem> ItemArchivoCargar = new ArrayList<JMenuItem>();
-    ArrayList<JMenuItem> ItemArchivoModificar = new ArrayList<JMenuItem>();
-    String archivo = "";
-    String archivoSeleccionado = "";
-    int count = 0;
-    int registros = 0;
-    static int numTablas = 0;
+    static JTextField fieldArchivo = new JTextField();
+    static JTextField[] field1Guardar = new JTextField[10];
+    static JTextField[] field2Guardar = new JTextField[10];
+    static ArrayList<JMenuItem> ItemArchivoCargar = new ArrayList<JMenuItem>();
+    static ArrayList<JMenuItem> ItemArchivoModificar = new ArrayList<JMenuItem>();
+    BackEnd backend = new BackEnd();
     boolean CampoVacio1 = false; 
     boolean CampoVacio2 = false; 
     boolean CampoVacio3 = false;
-
+    
     RoundLineBorder r = new RoundLineBorder(Color.lightGray.darker(),true);
+    
+    int ph(double d){
+        double r = 0;
+        Toolkit t = Toolkit.getDefaultToolkit();
+        r = t.getScreenSize().height*(d/100);
+        return (int)r;
+    }
+    
+    int pw(double d){
+        double r = 0;
+        Toolkit t = Toolkit.getDefaultToolkit();
+        r = t.getScreenSize().width*(d/100);
+        return (int)r;
+    }
+    
+    int pwh(double d){
+        double r = 0;
+        Toolkit t = Toolkit.getDefaultToolkit();
+        double s = ph(8) + (ph(7.8)*(5));
+        return (int)s;
+    }
 
-    public Pareo(){  
+    public Pareo(){
         this.setLayout(null);
         this.setBounds(0,0,500,500);
         this.setLocationRelativeTo(null);
@@ -85,210 +99,85 @@ public class Pareo extends JFrame{
         menu.add(cargar);
         menu.add(modificar);
         
-        try {
-            Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("select * from archivos");
-            
-            while (rs.next()) {
-                registros++;
-            }
-            
-        } catch(Exception e){} 
+        backend.CargarItems();
+        backend.EventoCargarDatos();
+        backend.EventoModificarDatos();
         
-        try {
-            Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("select * from archivos");
-            
-            int i = 0;
-            while(rs.next()){
-                ItemArchivoCargar.add(new JMenuItem(rs.getString("archivo")));
-                ItemArchivoModificar.add(new JMenuItem(rs.getString("archivo")));
-                cargar.add(ItemArchivoCargar.get(i));
-                modificar.add(ItemArchivoModificar.get(i));
-                i++;
-            }
-            
-        } catch(Exception e){}
+        panelFondo.setBounds(pw(0),ph(0),pw(100),ph(100));
+        panelFondo.setOpaque(false);
+        panelFondo.setLayout(null);
         
-        ActionListener eventoCargar = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for(int i = 0; i < registros; i++){
-                    
-                    archivoSeleccionado = "";
-            
-                    try {
-                        Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-                        PreparedStatement pst = (PreparedStatement) cn.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
-                        ResultSet rs = pst.executeQuery();
-            
-                        int count = 0;
-                        while (rs.next()) {
-                            count++;
-                        } 
-            
-                        Integer countArr[] = new Integer[count];
-            
-                        Connection cn2 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-                        PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
-                        ResultSet rs2 = pst2.executeQuery();
-            
-                        Integer id[] = new Integer[count];
-            
-                        int count2 = 0;
-                        int j = 0;
-                        while (rs2.next()) {
-                            id[count2] = Integer.parseInt(rs2.getString("ID"));
-                            countArr[j] = count2;
-                            j++;
-                            count2++;
-                        } 
-            
-                        int arr[] = new int[10];
-                        arr[0] = (int)(Math.random()*count);
-        
-                        for(int k = 1; k < 10; k++){
-                            arr[k] = (int)(Math.random()*count);
-                            for(int r = 0; r < k; r++){
-                                if(arr[k] == arr[r]){
-                                    k--;
-                                }
-                            }
-                        }
-            
-                        Connection cn3 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-                        PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("select * from " + ItemArchivoCargar.get(i).getText().toLowerCase() + " where ID = ?");
-            
-                        for(int m = 0; m < count; m++){
-                            for(int r = 0; r < count; r++){
-                                if(arr[m] == countArr[r]){
-                                    try{
-                                        String dei = "";
-                    
-                                        dei = Integer.toString(id[arr[m]]);
-                                        pst3.setString(1, dei);
-                    
-                                        ResultSet rs3 = pst3.executeQuery();
+        panelComponentes.setLayout(null);
+        panelComponentes.setBounds(pw(0),ph(0),pw(100),ph(100));
+        panelComponentes.setOpaque(false);
 
-                                        if(rs3.next()){
-                                            field1[m].setText(rs3.getString("concepto"));
-                                            field2[m].setText(rs3.getString("respuesta"));
-                                        } else{
-                                            JOptionPane.showMessageDialog(null, "Conexión no exitosa");
-                                        }
-                                    }catch(Exception q){}
-                                }
-                            }
-                        }
-            
-                        pst.close();
-                        cn.close();
-                        pst2.close();
-                        cn2.close();
-                        pst3.close();
-                        cn3.close();
-            
-                    } catch (Exception n) {}
-                }
-            }  
-        };
-        for(int i = 0; i < registros; i++){
-            ItemArchivoCargar.get(i).addActionListener(eventoCargar);
-        }
+        fondo1.setBounds(pw(6),ph(3.8),pw(24.76),ph(83));
         
-        ActionListener eventoModificar = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for(int i = 0; i < registros; i++){
-                    if(e.getSource() == ItemArchivoModificar.get(i)){
-                        archivo = ItemArchivoModificar.get(i).getText();
-                    }
-                }
-                VentanaModificar();
-                CargarDatosGuardados();
-            }  
-        };
-        for(int i = 0; i < registros; i++){
-            ItemArchivoModificar.get(i).addActionListener(eventoModificar);
-        }
-        
-        panel.setBounds(0,30,500,700);
-        panel.setBackground(new Color(67, 79, 118));
-        
-        panel2.setLayout(null);
-        panel2.setBounds(0,0,1300,800);
-        panel2.setOpaque(false);
-        
-        panel3.setBounds(515,30,900,700);
-        panel3.setOpaque(false);
-        
-        
-        fondo1.setBounds(20,30,350,620);
         ImageIcon imagen = new ImageIcon(getClass().getResource("fondo1.png"));
         ImageIcon imagen2 = new ImageIcon(imagen.getImage().getScaledInstance(fondo1.getWidth(),fondo1.getHeight(), Image.SCALE_DEFAULT));
         fondo1.setIcon(imagen2);
-        panel.add(fondo1);
+        panelFondo.add(fondo1);
         
-        fondo2.setBounds(100,30,650,620);
+        fondo2.setBounds(pw(46.5),ph(3.8),pw(47),ph(83));
+        
         ImageIcon imagen3 = new ImageIcon(imagen.getImage().getScaledInstance(fondo2.getWidth(),fondo2.getHeight(), Image.SCALE_DEFAULT));
         fondo2.setIcon(imagen3);
-        panel3.add(fondo2);
+        panelFondo.add(fondo2);
         
-            
-        for(int i = 0, k = 60; i < 10; i++, k+=60){
+        double ik = 8;
+        for(int i = 0; i < 10; i++, ik += 7.8){
             field1[i] = new JTextField();
-            field1[i].setBounds(100,k,300,35);
+            field1[i].setBounds(pw(7.8),ph(ik),pw(21),ph(4.8));
             field1[i].setVisible(true);
+            System.out.println("2: " + ph(ik));
             
             field1[i].setBorder(r);
             field1[i].setBorder(BorderFactory.createCompoundBorder(field1[i].getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5)));
             
-            panel2.add(field1[i]);
+            panelComponentes.add(field1[i]);
         }
         
-        for(int i = 0, k = 60; i < 10; i++, k+=60){
+        ik = 8;
+        for(int i = 0; i < 10; i++, ik += 7.8){
             field2[i] = new JTextField();
-            field2[i].setBounds(750,k,500,35);
+            field2[i].setBounds(pw(53.5),ph(ik),pw(37.5),ph(4.8));
             field2[i].setVisible(true);
             
             field2[i].setBorder(r);
             field2[i].setBorder(BorderFactory.createCompoundBorder(field2[i].getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5)));
             
-            panel2.add(field2[i]);
+            panelComponentes.add(field2[i]);
         }
         
-        for(int i = 0, k = 60; i < 10; i++, k+=60){
+        ik = 8;
+        for(int i = 0; i < 10; i++, ik += 7.8){
             field3[i] = new JTextField();
-            field3[i].setBounds(680,k,50,35);
+            field3[i].setBounds(pw(48.5),ph(ik),pw(4),ph(4.8));
             field3[i].setVisible(true);
             
             field3[i].setBorder(r);
             field3[i].setBorder(BorderFactory.createCompoundBorder(field1[i].getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5)));
             
-            panel2.add(field3[i]);
+            panelComponentes.add(field3[i]);
+            
         }
         
-        for(int i = 0, k = 62; i < 10; i++, k+=60){
+        ik = 9.2;
+        for(int i = 0; i < 10; i++, ik += 7.8){
             int num = i+1;
             String numString = Integer.toString(num);
             if(i == 9){
                 numeros[i] = new JLabel(numString + " -");
-                numeros[i].setBounds(43,k,30,30);
+                numeros[i].setBounds(pw(3.4),ph(ik),pw(2),ph(2));
                 numeros[i].setForeground(Color.WHITE);
                 numeros[i].setFont(new Font("Arial", Font.BOLD, 14));
-                panel2.add(numeros[i]);
+                panelComponentes.add(numeros[i]);
             } else{
                 numeros[i] = new JLabel(numString + " -");
-                numeros[i].setBounds(50,k,30,30);
+                numeros[i].setBounds(pw(4),ph(ik),pw(2),ph(2));
                 numeros[i].setForeground(Color.WHITE);
                 numeros[i].setFont(new Font("Arial", Font.BOLD, 14));
-                panel2.add(numeros[i]);
+                panelComponentes.add(numeros[i]);
             }
 
         }
@@ -304,7 +193,7 @@ public class Pareo extends JFrame{
         botonPanelReiniciar.setVisible(false);
         txtBotonReiniciar.setVisible(false);
         
-        botonPanelRevisar.setBounds(458, 550, 150, 60);
+        botonPanelRevisar.setBounds(pw(33.35), ph(72), pw(10.5), ph(7.7));
         botonPanelRevisar.setOpaque(false);
         botonPanelRevisar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -325,7 +214,7 @@ public class Pareo extends JFrame{
             }
         });
         
-        botonPanelReiniciar.setBounds(458, 550, 150, 60);
+        botonPanelReiniciar.setBounds(pw(33.35), ph(72), pw(10.5), ph(7.7));
         botonPanelReiniciar.setOpaque(false);
         botonPanelReiniciar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -343,7 +232,7 @@ public class Pareo extends JFrame{
             }
         });
         
-        botonPanelRevolver.setBounds(458, 550, 150, 60);
+        botonPanelRevolver.setBounds(pw(33.35), ph(72), pw(10.5), ph(7.7));
         botonPanelRevolver.setLayout(new GridBagLayout());
         botonPanelRevolver.setOpaque(false);
         botonPanelRevolver.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -371,7 +260,7 @@ public class Pareo extends JFrame{
         guardar.addActionListener(listener3);
         
         botonPanel.setBackground(new Color(209,97,134));
-        botonPanel.setBounds(458, 550, 150, 60);
+        botonPanel.setBounds(pw(33.35), ph(72), pw(10.5), ph(7.7));
         botonPanel.add(txtBotonReiniciar);
         botonPanel.add(txtBotonRevolver);
         botonPanel.add(txtBotonRevisar);
@@ -381,9 +270,8 @@ public class Pareo extends JFrame{
         this.add(botonPanelRevolver);
         this.add(botonPanelReiniciar);
         this.add(botonPanel);
-        this.add(panel2);
-        this.add(panel3);
-        this.add(panel);
+        this.add(panelComponentes);
+        this.add(panelFondo);
         
         this.setVisible(true);
         
@@ -404,20 +292,20 @@ public class Pareo extends JFrame{
         ImageIcon imagenRojo = new ImageIcon(getClass().getResource("PuntoRojo.png"));
          
         for(int i = 0; i < 10; i++){
-            checkVerde[i].setSize(15,15);
+            checkVerde[i].setSize(pw(0.8),ph(1.4));
             ImageIcon imagenVerde2 = new ImageIcon(imagenVerde.getImage().getScaledInstance(checkVerde[i].getWidth(),checkVerde[i].getHeight(), Image.SCALE_DEFAULT));
             checkVerde[i].setIcon(imagenVerde2);
             checkVerde[i].setVisible(false);
-            panel2.add(checkVerde[i]);
+            panelComponentes.add(checkVerde[i]);
             checkVerde[i].repaint();
         }
         
         for(int i = 0, j = 0; i < 10; i++, j++){
-            checkRojo[i].setSize(15,15);
+            checkRojo[i].setSize(pw(0.8),ph(1.4));
             ImageIcon imagenRojo2 = new ImageIcon(imagenRojo.getImage().getScaledInstance(checkRojo[i].getWidth(),checkRojo[i].getHeight(), Image.SCALE_DEFAULT));
             checkRojo[i].setIcon(imagenRojo2);
             checkRojo[i].setVisible(false);
-            panel2.add(checkRojo[i]);
+            panelComponentes.add(checkRojo[i]);
             checkRojo[i].repaint();
         }
 
@@ -428,98 +316,41 @@ public class Pareo extends JFrame{
         for(int i = 0; i < 10; i++){
             if(field1[i].getText().equals("")){
                 CampoVacio1 = true;
-            } else if(field2[i].getText().equals("")){
+            } else{
+                CampoVacio1 = false;
+            } 
+            if(field2[i].getText().equals("")){
                 CampoVacio2 = true;
-            } else if(field3[i].getText().equals("")){
+            } else{
+                CampoVacio2 = false;
+            }
+            if(field3[i].getText().equals("")){
                 CampoVacio3 = true;
+            } else{
+                CampoVacio3 = false;
             }
         }
         
         if(CampoVacio1 == false && CampoVacio2 == false && CampoVacio3 == false){
+            double ik = 8;
             for(int i = 0; i < 10; i++){
-                if(Integer.parseInt(field3[i].getText()) == 1){
-                    if(field1[i].getBounds().contains(100,60,300,35)){
-                        checkVerde[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkVerde[i].setVisible(true);
-                    } else{
-                        checkRojo[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
+                ik = 8;
+                for(int j = 1; j <= 10; j++, ik += 7.8){
+                    if(Integer.parseInt(field3[i].getText()) == j){
+                        
+                        if(field1[i].getBounds().contains(pw(7.8),ph(ik),pw(21),ph(4.8))){
+                            System.out.println("IZZ");
+                            checkVerde[i].setLocation(field3[i].getX()-pw(1.45), field3[i].getY()+ph(1.6));
+                            checkVerde[i].setVisible(true);
+                        } else{
+                            System.out.println("ONN");
+                            checkRojo[i].setLocation(field3[i].getX()-pw(1.45), field3[i].getY()+ph(1.6));
+                            checkRojo[i].setVisible(true);
+                        }
+                    } else{  
+                        checkRojo[i].setLocation(field3[i].getX()-pw(1.45), field3[i].getY()+ph(1.6));
                         checkRojo[i].setVisible(true);
-                    }
-                } else if(Integer.parseInt(field3[i].getText()) == 2){
-                    if(field1[i].getBounds().contains(100,60*2,300,35)){
-                        checkVerde[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkVerde[i].setVisible(true);
-                    } else{
-                        checkRojo[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkRojo[i].setVisible(true);
-                    }
-                } else if(Integer.parseInt(field3[i].getText()) == 3){
-                    if(field1[i].getBounds().contains(100,60*3,300,35)){
-                        checkVerde[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkVerde[i].setVisible(true);
-                    } else{
-                        checkRojo[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkRojo[i].setVisible(true);
-                    }
-                } else if(Integer.parseInt(field3[i].getText()) == 4){
-                    if(field1[i].getBounds().contains(100,60*4,300,35)){
-                        checkVerde[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkVerde[i].setVisible(true);
-                    } else{
-                        checkRojo[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkRojo[i].setVisible(true);
-                    }
-                } else if(Integer.parseInt(field3[i].getText()) == 5){
-                    if(field1[i].getBounds().contains(100,60*5,300,35)){
-                        checkVerde[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkVerde[i].setVisible(true);
-                    } else{
-                        checkRojo[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkRojo[i].setVisible(true);
-                    }
-                } else if(Integer.parseInt(field3[i].getText()) == 6){
-                    if(field1[i].getBounds().contains(100,60*6,300,35)){
-                        checkVerde[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkVerde[i].setVisible(true);
-                    } else{
-                        checkRojo[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkRojo[i].setVisible(true);
-                    }
-                } else if(Integer.parseInt(field3[i].getText()) == 7){
-                    if(field1[i].getBounds().contains(100,60*7,300,35)){
-                        checkVerde[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkVerde[i].setVisible(true);
-                    } else{
-                        checkRojo[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkRojo[i].setVisible(true);
-                    }
-                } else if(Integer.parseInt(field3[i].getText()) == 8){
-                    if(field1[i].getBounds().contains(100,60*8,300,35)){
-                        checkVerde[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkVerde[i].setVisible(true);
-                    } else{
-                        checkRojo[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkRojo[i].setVisible(true);
-                    }
-                } else if(Integer.parseInt(field3[i].getText()) == 9){
-                    if(field1[i].getBounds().contains(100,60*9,300,35)){
-                        checkVerde[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkVerde[i].setVisible(true);
-                    } else{
-                        checkRojo[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkRojo[i].setVisible(true);
-                    }
-                } else if(Integer.parseInt(field3[i].getText()) == 10){
-                    if(field1[i].getBounds().contains(100,60*10,300,35)){
-                        checkVerde[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkVerde[i].setVisible(true);
-                    } else{
-                        checkRojo[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                        checkRojo[i].setVisible(true);
-                    }
-                } else{
-                    checkRojo[i].setLocation(field3[i].getX()-25, field3[i].getY()+9);
-                    checkRojo[i].setVisible(true);
+                    }   
                 }
             }
         }
@@ -559,243 +390,33 @@ public class Pareo extends JFrame{
         }
         
         //Revolver el primer componente
-        for(int i = 0; i < 10; i++){
+        double ik = 8;
+        for(int i = 0; i < 10; i++, ik += 7.8){
             for(int j = 0; j < 10; j++){
                 if(arr[i] == j){
-                    field1[i].setLocation(100, 60*(j+1));
+                    field1[j].setLocation(pw(7.8), ph(ik));
                 }
             }
         }
         
         //Revolver los dos últimos componentes
-        for(int i = 0; i < 10; i++){
+        ik = 8;
+        for(int i = 0; i < 10; i++, ik += 7.8){
             for(int j = 0; j < 10; j++){
                 if(arr2[i] == j){
-                    field2[i].setLocation(750, 60*(j+1));
-                    field3[i].setLocation(680, 60*(j+1));
+                    field2[j].setLocation(pw(53.5), ph(ik));
+                    field3[j].setLocation(pw(48.5), ph(ik));
                 }
             }     
         }     
     }
     
-    public void modificar(){
-        boolean campoVacio = false;
-        boolean nombreVacio = false;
-        
-        if(fieldArchivo.getText().trim().equals("")){
-            nombreVacio = true;
-        }
-        
-        for(int i = 0; i < 10; i++){
-            if(field1Guardar[i].getText().trim().equals("") || field2Guardar[i].getText().trim().equals("")){
-                campoVacio = true;
-            }
-        }
-        
-        if(nombreVacio == false && campoVacio == false){
-            try{
-                Connection cn2 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-                PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("select * from " + archivo.toLowerCase());
-                
-                ResultSet rs = pst2.executeQuery();
-                
-                ArrayList<Integer> id = new ArrayList<Integer>();
-                while(rs.next()){
-                    id.add(Integer.parseInt(rs.getString("ID")));
-                }
-                
-                for(int i = 0; i < 10; i++){
-                    Connection cn3 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-                    PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("update " + archivo.toLowerCase() + " set concepto=?, respuesta=? where ID = " + Integer.toString(id.get(i)));
-                
-                    pst3.setString(1, field1Guardar[i].getText().trim());
-                    pst3.setString(2, field2Guardar[i].getText().trim());
-                    pst3.executeUpdate();
-                }
-                
-                Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-                PreparedStatement pst = (PreparedStatement) cn.prepareStatement("rename table " + archivo.toLowerCase() + " to " + fieldArchivo.getText());
-                pst.executeUpdate();
-
-                Connection cn4 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-                PreparedStatement pst4 = (PreparedStatement) cn4.prepareStatement("update archivos set archivo=? where archivo = '" + archivo + "'");
-                
-                pst4.setString(1, fieldArchivo.getText().trim());
-                pst4.executeUpdate();
-            }catch(Exception e){}  
-            
-            try {
-            Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("select * from archivos");
-            
-            //Actualizar el nombre de archivo en la pestaña "Cargar" y "Modificar"
-            int i = 0;
-            while(rs.next()){
-                ItemArchivoCargar.get(i).setText(rs.getString("archivo"));
-                ItemArchivoModificar.get(i).setText(rs.getString("archivo"));
-                i++;
-            }
-            }catch(Exception e){}
-
-            //////////////////////////////////////<<<<<<<<----------------------
-            
-            try {
-            Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("select * from archivos");
-            
-            registros = 0;
-            while (rs.next()) {
-                registros++;
-            }
-            
-        } catch(Exception e){} 
-            
-            ActionListener evento = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for(int i = 0; i < registros; i++){
-            
-                    try {
-                        Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-                        PreparedStatement pst = (PreparedStatement) cn.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
-                        ResultSet rs = pst.executeQuery();
-            
-                        int count = 0;
-                        while (rs.next()) {
-                            count++;
-                        } 
-            
-                        Integer countArr[] = new Integer[count];
-            
-                        Connection cn2 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-                        PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
-                        ResultSet rs2 = pst2.executeQuery();
-            
-                        Integer id[] = new Integer[count];
-            
-                        int count2 = 0;
-                        int j = 0;
-                        while (rs2.next()) {
-                            id[count2] = Integer.parseInt(rs2.getString("ID"));
-                            countArr[j] = count2;
-                            j++;
-                            count2++;
-                        } 
-            
-                        int arr[] = new int[10];
-                        arr[0] = (int)(Math.random()*count);
-        
-                        for(int k = 1; k < 10; k++){
-                            arr[k] = (int)(Math.random()*count);
-                            for(int r = 0; r < k; r++){
-                                if(arr[k] == arr[r]){
-                                    k--;
-                                }
-                            }
-                        }
-            
-                        Connection cn3 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-                        PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("select * from " + ItemArchivoCargar.get(i).getText().toLowerCase() + " where ID = ?");
-            
-                        for(int m = 0; m < count; m++){
-                            for(int r = 0; r < count; r++){
-                                if(arr[m] == countArr[r]){
-                                    try{
-                                        String dei = "";
-                    
-                                        dei = Integer.toString(id[arr[m]]);
-                                        pst3.setString(1, dei);
-                    
-                                        ResultSet rs3 = pst3.executeQuery();
-
-                                        if(rs3.next()){
-                                            field1[m].setText(rs3.getString("concepto"));
-                                            field2[m].setText(rs3.getString("respuesta"));
-                                        } else{
-                                            JOptionPane.showMessageDialog(null, "Conexión no exitosa");
-                                        }
-                                    }catch(Exception q){}
-                                }
-                            }
-                        }
-            
-                        pst.close();
-                        cn.close();
-                        pst2.close();
-                        cn2.close();
-                        pst3.close();
-                        cn3.close();
-            
-                    } catch (Exception n) {}
-                }
-            }   
-        };
-            
-            for(int i = 0; i < registros; i++){
-            ItemArchivoCargar.get(i).addActionListener(evento);
-            }
-            
-            JOptionPane.showMessageDialog(null, "Archivo modificado correctamente");
-        } else{
-            if(campoVacio == true){
-                JOptionPane.showMessageDialog(null, "Por favor llena todos los campos");
-            }
-            if(nombreVacio == true){
-                JOptionPane.showMessageDialog(null, "Por favor nombra el archivo");
-            }
-        }
-    }
-    
-    public void CargarDatosGuardados(){
-        
-        fieldArchivo.setText(archivo);
-        
-        try{
-                
-            Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            PreparedStatement pst = (PreparedStatement) cn.prepareStatement("select * from " + archivo.toLowerCase());
-                
-            ResultSet rs = pst.executeQuery();
-            
-            ArrayList<Integer> id = new ArrayList<Integer>();
-  
-            int count = 0;
-            while(rs.next()){
-                id.add(Integer.parseInt(rs.getString("ID")));
-                count++;
-            }
-            
-            PreparedStatement pst2 = (PreparedStatement) cn.prepareStatement("select * from " + archivo.toLowerCase() + " where ID = ?");
-            
-            for(int i = 0; i < count; i++){
-                String dei = "";
-                    
-                dei = Integer.toString(id.get(i));
-                pst2.setString(1, dei);
-                    
-                ResultSet rs2 = pst2.executeQuery();
-
-                if(rs2.next()){
-                    field1Guardar[i].setText(rs2.getString("concepto"));
-                    field2Guardar[i].setText(rs2.getString("respuesta"));
-                } else{
-                    JOptionPane.showMessageDialog(null, "Conexión no exitosa");
-                }
-            }
-        }catch(Exception e){}
-    }
-    
     public void reiniciar(){
-        for(int i = 0; i < 10; i++){
-            field1[i].setLocation(100, 60 + (60 * i));
-            field2[i].setLocation(750, 60 + (60 * i));
-            field3[i].setLocation(680, 60 + (60 * i));
+        double ik = 8;
+        for(int i = 0; i < 10; i++, ik += 7.8){
+            field1[i].setLocation(pw(7.8), ph(ik));
+            field2[i].setLocation(pw(53.5), ph(ik));
+            field3[i].setLocation(pw(48.5), ph(ik));
         }
 
         for(int i = 0; i < 10; i++){
@@ -805,261 +426,10 @@ public class Pareo extends JFrame{
         }
     }
     
-    public void guardar(){
-        
-        boolean campoVacio = false;
-        boolean nombreVacio = false;
-        
-        if(fieldArchivo.getText().trim().equals("")){
-            nombreVacio = true;
-        }
-        
-        for(int i = 0; i < 10; i++){
-            if(field1Guardar[i].getText().trim().equals("") || field2Guardar[i].getText().trim().equals("")){
-                campoVacio = true;
-            }
-        }
-        
-        if(nombreVacio == false && campoVacio == false){
-            try{
-                Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-                PreparedStatement pst = (PreparedStatement) cn.prepareStatement("CREATE TABLE " + fieldArchivo.getText().trim() + " (ID INT AUTO_INCREMENT PRIMARY KEY, concepto TEXT, respuesta TEXT)");
-                pst.execute();
-                pst.close();
-                cn.close();
-                
-                Connection cn2 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-                PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("insert into " + fieldArchivo.getText() + " values(?,?,?)");
-                
-                for(int i = 0; i < 10; i++){
-                    pst2.setString(1, "0");
-                    pst2.setString(2, field1Guardar[i].getText().trim());
-                    pst2.setString(3, field2Guardar[i].getText().trim());
-                    pst2.executeUpdate();
-                }
-                
-                Connection cn3 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-                PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("insert into archivos values(?,?)");
-                
-                pst3.setString(1, "0");
-                pst3.setString(2, fieldArchivo.getText().trim());
-                pst3.executeUpdate();
-
-                pst3.close();
-                cn3.close();
-                cn2.close();
-                pst2.close();
-            }catch(Exception e){}    
-        } else{
-            if(campoVacio == true){
-                JOptionPane.showMessageDialog(null, "Por favor llena todos los campos");
-            }
-            if(nombreVacio == true){
-                JOptionPane.showMessageDialog(null, "Por favor nombra el archivo");
-            }
-        }
-        /////////////////////////////////////////////////
-        try {
-            Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("select * from archivos");
-            
-            registros = 0;
-            while (rs.next()) {
-                registros++;
-            }
-            
-        } catch(Exception e){} 
-        
-
-        try {
-            Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("select * from archivos");
-            
-            int i = 0;
-            while(rs.next()){
-                ItemArchivoCargar.add(new JMenuItem());
-                cargar.add(ItemArchivoCargar.get(i));
-                ItemArchivoCargar.get(i).setText(rs.getString("archivo"));
-                i++;
-            }
-            
-        } catch(Exception e){}
-        
-        ActionListener evento = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for(int i = 0; i < registros; i++){
-            
-                    try {
-                        Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-                        PreparedStatement pst = (PreparedStatement) cn.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
-                        ResultSet rs = pst.executeQuery();
-            
-                        int count = 0;
-                        while (rs.next()) {
-                            count++;
-                        } 
-            
-                        Integer countArr[] = new Integer[count];
-            
-                        Connection cn2 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-                        PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
-                        ResultSet rs2 = pst2.executeQuery();
-            
-                        Integer id[] = new Integer[count];
-            
-                        int count2 = 0;
-                        int j = 0;
-                        while (rs2.next()) {
-                            id[count2] = Integer.parseInt(rs2.getString("ID"));
-                            countArr[j] = count2;
-                            j++;
-                            count2++;
-                        } 
-            
-                        int arr[] = new int[10];
-                        arr[0] = (int)(Math.random()*count);
-        
-                        for(int k = 1; k < 10; k++){
-                            arr[k] = (int)(Math.random()*count);
-                            for(int r = 0; r < k; r++){
-                                if(arr[k] == arr[r]){
-                                    k--;
-                                }
-                            }
-                        }
-            
-                        Connection cn3 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-                        PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("select * from " + ItemArchivoCargar.get(i).getText().toLowerCase() + " where ID = ?");
-            
-                        for(int m = 0; m < count; m++){
-                            for(int r = 0; r < count; r++){
-                                if(arr[m] == countArr[r]){
-                                    try{
-                                        String dei = "";
-                    
-                                        dei = Integer.toString(id[arr[m]]);
-                                        pst3.setString(1, dei);
-                    
-                                        ResultSet rs3 = pst3.executeQuery();
-
-                                        if(rs3.next()){
-                                            field1[m].setText(rs3.getString("concepto"));
-                                            field2[m].setText(rs3.getString("respuesta"));
-                                        } else{
-                                            JOptionPane.showMessageDialog(null, "Conexión no exitosa");
-                                        }
-                                    }catch(Exception q){}
-                                }
-                            }
-                        }
-            
-                        pst.close();
-                        cn.close();
-                        pst2.close();
-                        cn2.close();
-                        pst3.close();
-                        cn3.close();
-            
-                    } catch (Exception n) {}
-                }
-            }   
-        };
-        
-        for(int i = 0; i < registros; i++){
-            ItemArchivoCargar.get(i).addActionListener(evento);
-        }
-    }
-    
-    public void alternarDatos(){
-        
-        try {
-            Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-            PreparedStatement pst = (PreparedStatement) cn.prepareStatement("SELECT * FROM conceptos");
-            ResultSet rs = pst.executeQuery();
-            
-            int count = 0;
-            while (rs.next()) {
-                count++;
-            } 
-            
-            Integer countArr[] = new Integer[count];
-            
-            Connection cn2 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-            PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("SELECT * FROM conceptos");
-            ResultSet rs2 = pst2.executeQuery();
-            
-            Integer id[] = new Integer[count];
-            
-            int count2 = 0;
-            int i = 0;
-            while (rs2.next()) {
-                id[count2] = Integer.parseInt(rs2.getString("ID"));
-                countArr[i] = count2;
-                i++;
-                count2++;
-            } 
-            
-            int arr[] = new int[10];
-            arr[0] = (int)(Math.random()*count);
-        
-            for(int k = 1; k < 10; k++){
-                arr[k] = (int)(Math.random()*count);
-                for(int j = 0; j < k; j++){
-                    if(arr[k] == arr[j]){
-                        k--;
-                    }
-                }
-            }
-            
-            Connection cn3 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("select * from conceptos where ID = ?");
-            
-            for(int m = 0; m < count; m++){
-                for(int j = 0; j < count; j++){
-                    if(arr[m] == countArr[j]){
-                        try{
-                            String dei = "";
-                    
-                            dei = Integer.toString(id[arr[m]]);
-                            pst3.setString(1, dei);
-                    
-                            ResultSet rs3 = pst3.executeQuery();
-
-                            if(rs3.next()){
-                                field1[m].setText(rs3.getString("concepto"));
-                                field2[m].setText(rs3.getString("respuesta"));
-                            } else{
-                                JOptionPane.showMessageDialog(null, "Conexión no exitosa");
-                            }
-                        }catch(Exception r){}
-                    }
-                }
-            }
-            
-            pst.close();
-            cn.close();
-            pst2.close();
-            cn2.close();
-            pst3.close();
-            cn3.close();
-            
-        } catch (Exception e) {}
-    }
-    
     public void VentanaGuardar(){
         JFrame ventana = new JFrame();
         ventana.setLayout(null);
-        ventana.setBounds(0,0,900,700);
+        ventana.setBounds(0,0,pw(65.9),ph(91));
         ventana.setVisible(true);
         ventana.setLocationRelativeTo(null);
         ventana.setResizable(false);
@@ -1067,7 +437,7 @@ public class Pareo extends JFrame{
         RoundLineBorder2 r2 = new RoundLineBorder2(Color.lightGray.darker(),true);
         
         JComboBox combobox = new JComboBox();
-        combobox.setBounds(225,40,50,30);
+        combobox.setBounds(pw(16.5),ph(5.2),pw(3.66),ph(3.9));
         combobox.addItem("10");
         combobox.addItem("9");
         combobox.addItem("8");
@@ -1075,22 +445,21 @@ public class Pareo extends JFrame{
         combobox.addItem("6");
         combobox.addItem("5");
         
-        
         JPanel fondo = new JPanel();
         fondo.setBounds(0, 0, ventana.getWidth(), ventana.getHeight());
         fondo.setBackground(new Color(70,70,70));  
         
         JLabel txtCantidad = new JLabel("Cantidad de conceptos:");
-        txtCantidad.setBounds(50, 40, 200, 30);
+        txtCantidad.setBounds(pw(3.66), ph(5.2), pw(14.64), ph(3.9));
         txtCantidad.setFont(new Font("Arial", Font.BOLD, 14));
         txtCantidad.setForeground(Color.white);
         
         JLabel txtArchivo = new JLabel("Nombre de archivo:");
-        txtArchivo.setBounds(400, 40, 200, 30);
+        txtArchivo.setBounds(pw(29.28), ph(5.2), pw(14.64), ph(3.9));
         txtArchivo.setFont(new Font("Arial", Font.BOLD, 14));
         txtArchivo.setForeground(Color.white);
         
-        fieldArchivo.setBounds(545,38,200,35);
+        fieldArchivo.setBounds(pw(39.9),ph(4.95),pw(14.64),ph(4.56));
         fieldArchivo.setVisible(true);    
         fieldArchivo.setBorder(r2);
         fieldArchivo.setBorder(BorderFactory.createCompoundBorder(fieldArchivo.getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5))); 
@@ -1098,9 +467,10 @@ public class Pareo extends JFrame{
         JPanel botonPanelGuardar = new JPanel();
         JLabel txtBotonPanelGuardar = new JLabel("Guardar"); 
         
-        for(int i = 0, k = 120; i < 10; i++, k+=45){
+        double ik = 15.62;
+        for(int i = 0; i < 10; i++, ik+=5.86){
             field1Guardar[i] = new JTextField();
-            field1Guardar[i].setBounds(30,k,300,35);
+            field1Guardar[i].setBounds(pw(2.2),ph(ik),pw(21.96),ph(4.56));
             field1Guardar[i].setVisible(true);
             
             field1Guardar[i].setBorder(r2);
@@ -1109,9 +479,10 @@ public class Pareo extends JFrame{
             ventana.add(field1Guardar[i]);
         }
         
-        for(int i = 0, k = 120; i < 10; i++, k+=45){
+        ik = 15.62;
+        for(int i = 0; i < 10; i++, ik+=5.86){
             field2Guardar[i] = new JTextField();
-            field2Guardar[i].setBounds(360,k,500,35);
+            field2Guardar[i].setBounds(pw(26.35),ph(ik),pw(36.6),ph(4.56));
             field2Guardar[i].setVisible(true);
             
             field2Guardar[i].setBorder(r2);
@@ -1123,13 +494,13 @@ public class Pareo extends JFrame{
         txtBotonPanelGuardar.setFont(new Font("Arial", Font.BOLD, 16));
         txtBotonPanelGuardar.setForeground(Color.white);
         
-        botonPanelGuardar.setBounds(370, 600, 120, 40);
+        botonPanelGuardar.setBounds(pw(27.09), ph(78.12), pw(8.78), ph(5.2));
         botonPanelGuardar.setBackground(new Color(209,97,134));
         botonPanelGuardar.setLayout(new GridBagLayout());
         botonPanelGuardar.setOpaque(true);
         botonPanelGuardar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                guardar();
+                backend.guardar();
             }
             public void mouseEntered(java.awt.event.MouseEvent evt){
                 botonPanelGuardar.setBackground(new Color(219,107,144));
@@ -1152,7 +523,7 @@ public class Pareo extends JFrame{
     public void VentanaModificar(){
         JFrame ventana = new JFrame();
         ventana.setLayout(null);
-        ventana.setBounds(0,0,900,700);
+        ventana.setBounds(0,0,pw(65.88),ph(91.14));
         ventana.setVisible(true);
         ventana.setLocationRelativeTo(null);
         ventana.setResizable(false);
@@ -1160,7 +531,7 @@ public class Pareo extends JFrame{
         RoundLineBorder2 r2 = new RoundLineBorder2(Color.lightGray.darker(),true);
         
         JComboBox combobox = new JComboBox();
-        combobox.setBounds(225,40,50,30);
+        combobox.setBounds(pw(16.47),ph(5.2),pw(3.66),ph(3.9));
         combobox.addItem("10");
         combobox.addItem("9");
         combobox.addItem("8");
@@ -1174,16 +545,16 @@ public class Pareo extends JFrame{
         fondo.setBackground(new Color(70,70,70));  
         
         JLabel txtCantidad = new JLabel("Cantidad de conceptos:");
-        txtCantidad.setBounds(50, 40, 200, 30);
+        txtCantidad.setBounds(pw(3.66), ph(5.2), pw(14.64), ph(3.9));
         txtCantidad.setFont(new Font("Arial", Font.BOLD, 14));
         txtCantidad.setForeground(Color.white);
         
         JLabel txtArchivo = new JLabel("Nombre de archivo:");
-        txtArchivo.setBounds(400, 40, 200, 30);
+        txtArchivo.setBounds(pw(29.28), ph(5.2), pw(14.64), ph(3.9));
         txtArchivo.setFont(new Font("Arial", Font.BOLD, 14));
         txtArchivo.setForeground(Color.white);
         
-        fieldArchivo.setBounds(545,38,200,35);
+        fieldArchivo.setBounds(pw(39.9),ph(4.95),pw(14.6),ph(4.57));
         fieldArchivo.setVisible(true);    
         fieldArchivo.setBorder(r2);
         fieldArchivo.setBorder(BorderFactory.createCompoundBorder(fieldArchivo.getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5))); 
@@ -1191,9 +562,10 @@ public class Pareo extends JFrame{
         JPanel botonPanelGuardar = new JPanel();
         JLabel txtBotonPanelGuardar = new JLabel("Modificar"); 
         
-        for(int i = 0, k = 120; i < 10; i++, k+=45){
+        double ik = 15.62;
+        for(int i = 0; i < 10; i++, ik+=5.86){
             field1Guardar[i] = new JTextField();
-            field1Guardar[i].setBounds(30,k,300,35);
+            field1Guardar[i].setBounds(pw(2.2),ph(ik),pw(21.96),ph(4.56));
             field1Guardar[i].setVisible(true);
             
             field1Guardar[i].setBorder(r2);
@@ -1202,9 +574,10 @@ public class Pareo extends JFrame{
             ventana.add(field1Guardar[i]);
         }
         
-        for(int i = 0, k = 120; i < 10; i++, k+=45){
+        ik = 15.62;
+        for(int i = 0; i < 10; i++, ik+=5.86){
             field2Guardar[i] = new JTextField();
-            field2Guardar[i].setBounds(360,k,500,35);
+            field2Guardar[i].setBounds(pw(26.35),ph(ik),pw(36.6),ph(4.56));
             field2Guardar[i].setVisible(true);
             
             field2Guardar[i].setBorder(r2);
@@ -1216,13 +589,13 @@ public class Pareo extends JFrame{
         txtBotonPanelGuardar.setFont(new Font("Arial", Font.BOLD, 16));
         txtBotonPanelGuardar.setForeground(Color.white);
         
-        botonPanelGuardar.setBounds(370, 600, 120, 40);
+        botonPanelGuardar.setBounds(pw(27.1), ph(78.1), pw(8.78), ph(5.2));
         botonPanelGuardar.setBackground(new Color(209,97,134));
         botonPanelGuardar.setLayout(new GridBagLayout());
         botonPanelGuardar.setOpaque(true);
         botonPanelGuardar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                modificar();
+                backend.modificar();
             }
             public void mouseEntered(java.awt.event.MouseEvent evt){
                 botonPanelGuardar.setBackground(new Color(219,107,144));
@@ -1243,7 +616,7 @@ public class Pareo extends JFrame{
     
     public static void main(String[] args) {
         
-        Pareo pareo = new Pareo();
+        pareo = new Pareo();
    
     }
     
