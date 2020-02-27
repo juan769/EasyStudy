@@ -2,8 +2,10 @@
 package pareo;
 
 import java.awt.Color;
+import java.awt.Dimension;
 
 import java.awt.Font;
+import static java.awt.Frame.MAXIMIZED_BOTH;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -20,14 +22,21 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER;
+import javax.swing.border.Border;
 /**
  *
  * @author Juan Ballesteros
  */
-public class Pareo extends JFrame{
+public class Pareo {
     
-    static Pareo pareo;
+    JFrame ventanaPareo = new JFrame();
+    
     JLabel fondo1 = new JLabel();
     JLabel fondo2 = new JLabel();
     static JTextField[] field1 = new JTextField[10];
@@ -35,8 +44,8 @@ public class Pareo extends JFrame{
     JTextField[] field3 = new JTextField[10];
     JLabel checkVerde[] = new JLabel[10];
     JLabel checkRojo[] = new JLabel[10];
-    JPanel panelFondo = new JPanel();
-    JPanel panelComponentes = new JPanel();
+    static JPanel panelFondo = new JPanel();
+    static JPanel panelComponentes = new JPanel();
     JPanel botonPanel = new JPanel();
     JPanel botonPanelRevisar = new JPanel();
     JPanel botonPanelRevolver = new JPanel();
@@ -51,8 +60,10 @@ public class Pareo extends JFrame{
     static JMenu modificar = new JMenu("Modificar");
     JMenuItem guardar = new JMenuItem("Guardar");
     static JTextField fieldArchivo = new JTextField();
-    static JTextField[] field1Guardar = new JTextField[10];
-    static JTextField[] field2Guardar = new JTextField[10];
+    static JTextArea[] field1Guardar = new JTextArea[10];
+    static JTextArea[] field2Guardar = new JTextArea[10];
+    JScrollPane[] scrollArea = new JScrollPane[10];
+    JScrollPane[] scrollArea2 = new JScrollPane[10];
     static ArrayList<JMenuItem> ItemArchivoCargar = new ArrayList<JMenuItem>();
     static ArrayList<JMenuItem> ItemArchivoModificar = new ArrayList<JMenuItem>();
     BackEnd backend = new BackEnd();
@@ -61,6 +72,8 @@ public class Pareo extends JFrame{
     boolean CampoVacio3 = false;
     
     RoundLineBorder r = new RoundLineBorder(Color.lightGray.darker(),true);
+    RoundLineBorder2 r2 = new RoundLineBorder2(Color.lightGray.darker(),true);
+    RoundLineBorder3 r3 = new RoundLineBorder3(Color.lightGray.darker(),true);
     
     int ph(double d){
         double r = 0;
@@ -76,16 +89,16 @@ public class Pareo extends JFrame{
         return (int)r;
     }
 
-    public Pareo(){
-        this.setLayout(null);
-        this.setBounds(0,0,500,500);
-        this.setLocationRelativeTo(null);
-        this.setResizable(true);
-        this.setExtendedState(MAXIMIZED_BOTH);
-        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.getContentPane().setBackground(new Color(67, 79, 118));
+    public void Pareo(){
+
+        ventanaPareo.setLayout(null);
+        ventanaPareo.setBounds(0,0,500,500);
+        ventanaPareo.setLocationRelativeTo(null);
+        ventanaPareo.setResizable(true);
+        ventanaPareo.setExtendedState(MAXIMIZED_BOTH);
+        ventanaPareo.getContentPane().setBackground(new Color(67, 79, 118));
         
-        this.setJMenuBar(menubar);
+        ventanaPareo.setJMenuBar(menubar);
         menubar.add(menu);
        
         menu.add(guardar);
@@ -123,7 +136,7 @@ public class Pareo extends JFrame{
             field1[i].setBounds(pw(7.8),ph(ik),pw(21),ph(4.8));
             field1[i].setVisible(true);            
             field1[i].setBorder(r);
-            field1[i].setBorder(BorderFactory.createCompoundBorder(field1[i].getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5)));
+            field1[i].setBorder(BorderFactory.createCompoundBorder(field1[i].getBorder(), BorderFactory.createEmptyBorder(pw(0.7), ph(1.5), ph(2), pw(0.7) )));
             
             panelComponentes.add(field1[i]);
         }
@@ -135,7 +148,7 @@ public class Pareo extends JFrame{
             field2[i].setVisible(true);
             
             field2[i].setBorder(r);
-            field2[i].setBorder(BorderFactory.createCompoundBorder(field2[i].getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5)));
+            field2[i].setBorder(BorderFactory.createCompoundBorder(field2[i].getBorder(), BorderFactory.createEmptyBorder(pw(0.7), ph(1.5), ph(2), pw(0.7))));
             
             panelComponentes.add(field2[i]);
         }
@@ -147,7 +160,7 @@ public class Pareo extends JFrame{
             field3[i].setVisible(true);
             
             field3[i].setBorder(r);
-            field3[i].setBorder(BorderFactory.createCompoundBorder(field1[i].getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5)));
+            field3[i].setBorder(BorderFactory.createCompoundBorder(field1[i].getBorder(), BorderFactory.createEmptyBorder(pw(0.7), ph(1.5), ph(2), pw(0.7))));
             
             panelComponentes.add(field3[i]);
             
@@ -257,16 +270,18 @@ public class Pareo extends JFrame{
         botonPanel.add(txtBotonRevisar);
         botonPanel.setLayout(new GridBagLayout());
         
-        this.add(botonPanelRevisar);
-        this.add(botonPanelRevolver);
-        this.add(botonPanelReiniciar);
-        this.add(botonPanel);
-        this.add(panelComponentes);
-        this.add(panelFondo);
+        ventanaPareo.add(botonPanelRevisar);
+        ventanaPareo.add(botonPanelRevolver);
+        ventanaPareo.add(botonPanelReiniciar);
+        ventanaPareo.add(botonPanel);
+        ventanaPareo.add(panelComponentes);
+        ventanaPareo.add(panelFondo);
         
-        this.setVisible(true);
+        ventanaPareo.setVisible(true);
         
         CrearChecks();
+        
+        panelComponentes.revalidate();
     }
     
     public void CrearChecks(){
@@ -416,68 +431,44 @@ public class Pareo extends JFrame{
     
     public void VentanaGuardar(){
         JFrame ventana = new JFrame();
-        ventana.setLayout(null);
         ventana.setBounds(0,0,pw(65.9),ph(91));
         ventana.setVisible(true);
         ventana.setLocationRelativeTo(null);
         ventana.setResizable(false);
         
-        RoundLineBorder2 r2 = new RoundLineBorder2(Color.lightGray.darker(),true);
+        JPanel componentes = new JPanel();
+        componentes.setLayout(null);
+        componentes.setOpaque(true);
+        componentes.setPreferredSize(new Dimension(pw(64),ph(86)));
+        componentes.setBackground(new Color(70,70,70));
+        
+        JScrollPane scroll = new JScrollPane();
+        scroll.setBounds(0,0,pw(65.9),ph(91));
+        Border borderScroll = BorderFactory.createLineBorder(new Color(70,70,70));
+        scroll.setBorder(BorderFactory.createCompoundBorder(borderScroll, BorderFactory.createEmptyBorder(0,0,0,0)));
         
         JComboBox combobox = new JComboBox();
         combobox.setBounds(pw(16.5),ph(5.2),pw(3.66),ph(3.9));
+        combobox.addItem("20");
+        combobox.addItem("19");
+        combobox.addItem("18");
+        combobox.addItem("17");
+        combobox.addItem("16");
+        combobox.addItem("15");
+        combobox.addItem("14");
+        combobox.addItem("13");
+        combobox.addItem("12");
+        combobox.addItem("11");
         combobox.addItem("10");
         combobox.addItem("9");
         combobox.addItem("8");
         combobox.addItem("7");
         combobox.addItem("6");
         combobox.addItem("5");
-        
-        JPanel fondo = new JPanel();
-        fondo.setBounds(0, 0, ventana.getWidth(), ventana.getHeight());
-        fondo.setBackground(new Color(70,70,70));  
-        
-        JLabel txtCantidad = new JLabel("Cantidad de conceptos:");
-        txtCantidad.setBounds(pw(3.66), ph(5.2), pw(14.64), ph(3.9));
-        txtCantidad.setFont(new Font("Arial", Font.BOLD, 14));
-        txtCantidad.setForeground(Color.white);
-        
-        JLabel txtArchivo = new JLabel("Nombre de archivo:");
-        txtArchivo.setBounds(pw(29.28), ph(5.2), pw(14.64), ph(3.9));
-        txtArchivo.setFont(new Font("Arial", Font.BOLD, 14));
-        txtArchivo.setForeground(Color.white);
-        
-        fieldArchivo.setBounds(pw(39.9),ph(4.95),pw(14.64),ph(4.56));
-        fieldArchivo.setVisible(true);    
-        fieldArchivo.setBorder(r2);
-        fieldArchivo.setBorder(BorderFactory.createCompoundBorder(fieldArchivo.getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5))); 
+        combobox.setSelectedIndex(13);
         
         JPanel botonPanelGuardar = new JPanel();
         JLabel txtBotonPanelGuardar = new JLabel("Guardar"); 
-        
-        double ik = 15.62;
-        for(int i = 0; i < 10; i++, ik+=5.86){
-            field1Guardar[i] = new JTextField();
-            field1Guardar[i].setBounds(pw(2.2),ph(ik),pw(21.96),ph(4.56));
-            field1Guardar[i].setVisible(true);
-            
-            field1Guardar[i].setBorder(r2);
-            field1Guardar[i].setBorder(BorderFactory.createCompoundBorder(field1Guardar[i].getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5)));
-            
-            ventana.add(field1Guardar[i]);
-        }
-        
-        ik = 15.62;
-        for(int i = 0; i < 10; i++, ik+=5.86){
-            field2Guardar[i] = new JTextField();
-            field2Guardar[i].setBounds(pw(26.35),ph(ik),pw(36.6),ph(4.56));
-            field2Guardar[i].setVisible(true);
-            
-            field2Guardar[i].setBorder(r2);
-            field2Guardar[i].setBorder(BorderFactory.createCompoundBorder(field2Guardar[i].getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5)));
-            
-            ventana.add(field2Guardar[i]);
-        }
         
         txtBotonPanelGuardar.setFont(new Font("Arial", Font.BOLD, 16));
         txtBotonPanelGuardar.setForeground(Color.white);
@@ -498,13 +489,190 @@ public class Pareo extends JFrame{
             }
         });
         
+        for(int i = 0; i < 10; i++){
+            field1Guardar[i] = new JTextArea();
+            field2Guardar[i] = new JTextArea();
+        }
+        
+        for(int i = 0; i < 10; i++){
+            scrollArea[i] = new JScrollPane(field1Guardar[i]);
+            scrollArea2[i] = new JScrollPane(field2Guardar[i]);
+            scrollArea[i].setBackground(Color.white);
+            scrollArea[i].setBorder(r2);
+            scrollArea[i].setBorder(BorderFactory.createCompoundBorder(scrollArea[i].getBorder(), BorderFactory.createEmptyBorder(pw(0.7), ph(1.5), ph(1.2), pw(1))));
+            field1Guardar[i].setBorder(BorderFactory.createCompoundBorder(field1Guardar[i].getBorder(), BorderFactory.createEmptyBorder(pw(0.6), ph(0.5), ph(1), pw(1))));
+            field1Guardar[i].setLineWrap(true);
+            scrollArea2[i].setBackground(Color.white);
+            scrollArea2[i].setBorder(r2);
+            scrollArea2[i].setBorder(BorderFactory.createCompoundBorder(scrollArea2[i].getBorder(), BorderFactory.createEmptyBorder(pw(0.7), ph(1.5), ph(1.2), pw(1))));
+            field2Guardar[i].setBorder(BorderFactory.createCompoundBorder(field2Guardar[i].getBorder(), BorderFactory.createEmptyBorder(pw(0.6), ph(0.5), ph(1), pw(1))));
+            field2Guardar[i].setLineWrap(true);
+        }
+        
+        ActionListener cantConceptos = new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                if(e.getSource() == combobox){
+                    for(int i = 0; i < 10; i++){
+                        field1Guardar[i].setVisible(false);
+                        field2Guardar[i].setVisible(false);
+                        scrollArea[i].setVisible(false);
+                        scrollArea2[i].setVisible(false);
+                    }
+                    String selec = combobox.getSelectedItem().toString();
+                    if(selec.equals("5")){
+                        componentes.setPreferredSize(new Dimension(pw(64),ph(86)));
+                        botonPanelGuardar.setLocation(pw(27.09), ph(78.12));
+                        scroll.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_NEVER);
+                        double ik = 15.62;
+                        for(int i = 0; i < 5; i++, ik+=12.8){
+                            scrollArea[i].setBounds(pw(2.2),ph(ik),pw(21.96),ph(6.56));
+                            scrollArea[i].setVisible(true);
+                            field1Guardar[i].setVisible(true);
+                        }
+                        ik = 15.62;
+                        for(int i = 0; i < 5; i++, ik+=12.8){
+                            scrollArea2[i].setBounds(pw(26.35),ph(ik),pw(36.6),ph(6.56));
+                            scrollArea2[i].setVisible(true);
+                            field2Guardar[i].setVisible(true);
+                        }
+                    } else if(selec.equals("6")){
+                        componentes.setPreferredSize(new Dimension(pw(64),ph(86)));
+                        botonPanelGuardar.setLocation(pw(27.09), ph(78.12));
+                        scroll.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_NEVER);
+                        double ik = 15.62;
+                        for(int i = 0; i < 6; i++, ik+=10.24){
+                            scrollArea[i].setBounds(pw(2.2),ph(ik),pw(21.96),ph(6.56));
+                            scrollArea[i].setVisible(true);
+                            field1Guardar[i].setVisible(true);
+                        }
+                        ik = 15.62;
+                        for(int i = 0; i < 6; i++, ik+=10.24){
+                            scrollArea2[i].setBounds(pw(26.35),ph(ik),pw(36.6),ph(6.56));
+                            scrollArea2[i].setVisible(true);
+                            field2Guardar[i].setVisible(true);
+                        }
+                    } else if(selec.equals("7")){
+                        componentes.setPreferredSize(new Dimension(pw(64),ph(86)));
+                        botonPanelGuardar.setLocation(pw(27.09), ph(78.12));
+                        scroll.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_NEVER);
+                        double ik = 15.62;
+                        for(int i = 0; i < 7; i++, ik+=8.54){
+                            scrollArea[i].setBounds(pw(2.2),ph(ik),pw(21.96),ph(6.56));
+                            scrollArea[i].setVisible(true);
+                            field1Guardar[i].setVisible(true);
+                        }
+                        ik = 15.62;
+                        for(int i = 0; i < 7; i++, ik+=8.54){
+                            scrollArea2[i].setBounds(pw(26.35),ph(ik),pw(36.6),ph(6.56));
+                            scrollArea2[i].setVisible(true);
+                            field2Guardar[i].setVisible(true);
+                        }
+                    } else if(selec.equals("8")){
+                        componentes.setPreferredSize(new Dimension(pw(64),ph(97)));
+                        botonPanelGuardar.setLocation(pw(27.09), ph(88.3));
+                        scroll.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_AS_NEEDED);
+                        double ik = 15.62;
+                        for(int i = 0; i < 8; i++, ik+=8.8){
+                            scrollArea[i].setBounds(pw(2.2),ph(ik),pw(21.96),ph(6.56));
+                            scrollArea[i].setVisible(true);
+                            field1Guardar[i].setVisible(true);
+                        }
+                        ik = 15.62;
+                        for(int i = 0; i < 8; i++, ik+=8.8){
+                            scrollArea2[i].setBounds(pw(26.35),ph(ik),pw(36.6),ph(6.56));
+                            scrollArea2[i].setVisible(true);
+                            field2Guardar[i].setVisible(true);
+                        }
+                    } else if(selec.equals("9")){
+                        componentes.setPreferredSize(new Dimension(pw(64),ph(106)));
+                        botonPanelGuardar.setLocation(pw(27.09), ph(97.2));
+                        scroll.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_AS_NEEDED);
+                        double ik = 15.62;
+                        for(int i = 0; i < 9; i++, ik+=8.8){
+                            scrollArea[i].setBounds(pw(2.2),ph(ik),pw(21.96),ph(6.56));
+                            scrollArea[i].setVisible(true);
+                            field1Guardar[i].setVisible(true);
+                        }
+        
+                        ik = 15.62;
+                        for(int i = 0; i < 9; i++, ik+=8.8){
+                            scrollArea2[i].setBounds(pw(26.35),ph(ik),pw(36.6),ph(6.56));
+                            scrollArea2[i].setVisible(true);
+                            field2Guardar[i].setVisible(true);
+                        }
+                    } else if(selec.equals("10")){
+                        componentes.setPreferredSize(new Dimension(pw(64),ph(115)));
+                        botonPanelGuardar.setLocation(pw(27.09), ph(106));
+                        scroll.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_AS_NEEDED);
+                        double ik = 15.62;
+                        for(int i = 0; i < 10; i++, ik+=8.8){
+                            scrollArea[i].setBounds(pw(2.2),ph(ik),pw(21.96),ph(6.56));
+                            scrollArea[i].setVisible(true);
+                            field1Guardar[i].setVisible(true);
+                        }
+        
+                        ik = 15.62;
+                        for(int i = 0; i < 10; i++, ik+=8.8){
+                            scrollArea2[i].setBounds(pw(26.35),ph(ik),pw(36.6),ph(6.56));
+                            scrollArea2[i].setVisible(true);
+                            field2Guardar[i].setVisible(true);
+                        }
+                    }
+                }
+            }
+        };
+        combobox.addActionListener(cantConceptos);
+        
+        for(int i = 0; i < 10; i++){
+            componentes.add(scrollArea[i]);
+            componentes.add(scrollArea2[i]);
+        }
+        
+        double ik = 15.62;
+        for(int i = 0; i < 7; i++, ik+=8.54){
+            scrollArea[i].setBounds(pw(2.2),ph(ik),pw(21.96),ph(6.56));
+            scrollArea[i].setVisible(true);
+            field1Guardar[i].setVisible(true);
+            
+        }
+        
+        ik = 15.62;
+        for(int i = 0; i < 7; i++, ik+=8.54){
+            scrollArea2[i].setBounds(pw(26.35),ph(ik),pw(36.6),ph(6.56));
+            scrollArea2[i].setVisible(true);
+            field2Guardar[i].setVisible(true);
+        }
+        
+        JPanel fondo = new JPanel();
+        fondo.setBounds(0, 0, ventana.getWidth(), ventana.getHeight());
+        fondo.setBackground(new Color(70,70,70));  
+        
+        JLabel txtCantidad = new JLabel("Cantidad de conceptos:");
+        txtCantidad.setBounds(pw(3.66), ph(5.2), pw(14.64), ph(3.9));
+        txtCantidad.setFont(new Font("Arial", Font.BOLD, 14));
+        txtCantidad.setForeground(Color.white);
+        
+        JLabel txtArchivo = new JLabel("Nombre de archivo:");
+        txtArchivo.setBounds(pw(29.28), ph(5.2), pw(14.64), ph(3.9));
+        txtArchivo.setFont(new Font("Arial", Font.BOLD, 14));
+        txtArchivo.setForeground(Color.white);
+        
+        fieldArchivo.setBounds(pw(39.9),ph(4.95),pw(14.64),ph(4.56));
+        fieldArchivo.setVisible(true);    
+        fieldArchivo.setBorder(r2);
+        fieldArchivo.setBorder(BorderFactory.createCompoundBorder(fieldArchivo.getBorder(), BorderFactory.createEmptyBorder(pw(0), ph(1.5), ph(0), pw(0.7)))); 
+        
+        
+        scroll.setViewportView(componentes);
+        
         botonPanelGuardar.add(txtBotonPanelGuardar);
-        ventana.add(combobox);
-        ventana.add(fieldArchivo);
-        ventana.add(txtCantidad);
-        ventana.add(txtArchivo);
-        ventana.add(botonPanelGuardar);
-        ventana.add(fondo);
+        componentes.add(combobox);
+        componentes.add(fieldArchivo);
+        componentes.add(txtCantidad);
+        componentes.add(txtArchivo);
+        componentes.add(botonPanelGuardar);
+        ventana.add(scroll);
         
     }
     
@@ -545,31 +713,31 @@ public class Pareo extends JFrame{
         fieldArchivo.setBounds(pw(39.9),ph(4.95),pw(14.6),ph(4.57));
         fieldArchivo.setVisible(true);    
         fieldArchivo.setBorder(r2);
-        fieldArchivo.setBorder(BorderFactory.createCompoundBorder(fieldArchivo.getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5))); 
+        fieldArchivo.setBorder(BorderFactory.createCompoundBorder(fieldArchivo.getBorder(), BorderFactory.createEmptyBorder(pw(0.7), ph(1.5), ph(2), pw(0.7)))); 
         
         JPanel botonPanelGuardar = new JPanel();
         JLabel txtBotonPanelGuardar = new JLabel("Modificar"); 
         
         double ik = 15.62;
         for(int i = 0; i < 10; i++, ik+=5.86){
-            field1Guardar[i] = new JTextField();
+            field1Guardar[i] = new JTextArea();
             field1Guardar[i].setBounds(pw(2.2),ph(ik),pw(21.96),ph(4.56));
             field1Guardar[i].setVisible(true);
             
             field1Guardar[i].setBorder(r2);
-            field1Guardar[i].setBorder(BorderFactory.createCompoundBorder(field1Guardar[i].getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5)));
+            field1Guardar[i].setBorder(BorderFactory.createCompoundBorder(field1Guardar[i].getBorder(), BorderFactory.createEmptyBorder(pw(0.7), ph(1.5), ph(2), pw(0.7))));
             
             ventana.add(field1Guardar[i]);
         }
         
         ik = 15.62;
         for(int i = 0; i < 10; i++, ik+=5.86){
-            field2Guardar[i] = new JTextField();
+            field2Guardar[i] = new JTextArea();
             field2Guardar[i].setBounds(pw(26.35),ph(ik),pw(36.6),ph(4.56));
             field2Guardar[i].setVisible(true);
             
             field2Guardar[i].setBorder(r2);
-            field2Guardar[i].setBorder(BorderFactory.createCompoundBorder(field2Guardar[i].getBorder(), BorderFactory.createEmptyBorder(5, 10, 5, 5)));
+            field2Guardar[i].setBorder(BorderFactory.createCompoundBorder(field2Guardar[i].getBorder(), BorderFactory.createEmptyBorder(pw(0.7), ph(1.5), ph(2), pw(0.7))));
             
             ventana.add(field2Guardar[i]);
         }
@@ -601,11 +769,4 @@ public class Pareo extends JFrame{
         ventana.add(botonPanelGuardar);
         ventana.add(fondo);
     }
-    
-    public static void main(String[] args) {
-        
-        pareo = new Pareo();
-   
-    }
-    
 }

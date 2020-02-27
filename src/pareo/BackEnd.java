@@ -239,10 +239,8 @@ public class BackEnd {
             @Override
             public void actionPerformed(ActionEvent e) {
                 for(int i = 0; i < registros; i++){
-                    
-                    archivoSeleccionado = "";
-            
-                    try {
+                    if(e.getSource() == ItemArchivoCargar.get(i)){
+                        try {
                         Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
             
                         PreparedStatement pst = (PreparedStatement) cn.prepareStatement("SELECT * FROM " + Pareo.ItemArchivoCargar.get(i).getText().toLowerCase());
@@ -316,6 +314,7 @@ public class BackEnd {
                         cn3.close();
             
                     } catch (Exception n) {}
+                    }
                 }
             }  
         };
@@ -333,7 +332,7 @@ public class BackEnd {
                         archivo = ItemArchivoModificar.get(i).getText();
                     }
                 }
-                Pareo.pareo.VentanaModificar();
+                //Pareo.pareo.VentanaModificar();
                 CargarDatosGuardados();
             }  
         };
@@ -418,93 +417,6 @@ public class BackEnd {
             
         } catch(Exception e){} 
             
-            ActionListener evento = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for(int i = 0; i < registros; i++){
-            
-                    try {
-                        Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-                        PreparedStatement pst = (PreparedStatement) cn.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
-                        ResultSet rs = pst.executeQuery();
-            
-                        int count = 0;
-                        while (rs.next()) {
-                            count++;
-                        } 
-            
-                        Integer countArr[] = new Integer[count];
-            
-                        Connection cn2 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-                        PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("SELECT * FROM " + ItemArchivoCargar.get(i).getText().toLowerCase());
-                        ResultSet rs2 = pst2.executeQuery();
-            
-                        Integer id[] = new Integer[count];
-            
-                        int count2 = 0;
-                        int j = 0;
-                        while (rs2.next()) {
-                            id[count2] = Integer.parseInt(rs2.getString("ID"));
-                            countArr[j] = count2;
-                            j++;
-                            count2++;
-                        } 
-            
-                        int arr[] = new int[10];
-                        arr[0] = (int)(Math.random()*count);
-        
-                        for(int k = 1; k < 10; k++){
-                            arr[k] = (int)(Math.random()*count);
-                            for(int r = 0; r < k; r++){
-                                if(arr[k] == arr[r]){
-                                    k--;
-                                }
-                            }
-                        }
-            
-                        Connection cn3 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-                        PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("select * from " + ItemArchivoCargar.get(i).getText().toLowerCase() + " where ID = ?");
-            
-                        for(int m = 0; m < count; m++){
-                            for(int r = 0; r < count; r++){
-                                if(arr[m] == countArr[r]){
-                                    try{
-                                        String dei = "";
-                    
-                                        dei = Integer.toString(id[arr[m]]);
-                                        pst3.setString(1, dei);
-                    
-                                        ResultSet rs3 = pst3.executeQuery();
-
-                                        if(rs3.next()){
-                                            field1[m].setText(rs3.getString("concepto"));
-                                            field2[m].setText(rs3.getString("respuesta"));
-                                        } else{
-                                            JOptionPane.showMessageDialog(null, "Conexión no exitosa");
-                                        }
-                                    }catch(Exception q){}
-                                }
-                            }
-                        }
-            
-                        pst.close();
-                        cn.close();
-                        pst2.close();
-                        cn2.close();
-                        pst3.close();
-                        cn3.close();
-            
-                    } catch (Exception n) {}
-                }
-            }   
-        };
-            
-            for(int i = 0; i < registros; i++){
-            ItemArchivoCargar.get(i).addActionListener(evento);
-            }
-            
             JOptionPane.showMessageDialog(null, "Archivo modificado correctamente");
         } else{
             if(campoVacio == true){
@@ -516,6 +428,7 @@ public class BackEnd {
         }
     }
     
+    //Carga los datos guardados a ventana modificar
     public void CargarDatosGuardados(){
         
         fieldArchivo.setText(archivo);
@@ -554,82 +467,5 @@ public class BackEnd {
             }
         }catch(Exception e){}
     }
-    
-    public void alternarDatos(){
-        
-        try {
-            Connection cn = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-            PreparedStatement pst = (PreparedStatement) cn.prepareStatement("SELECT * FROM conceptos");
-            ResultSet rs = pst.executeQuery();
-            
-            int count = 0;
-            while (rs.next()) {
-                count++;
-            } 
-            
-            Integer countArr[] = new Integer[count];
-            
-            Connection cn2 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            
-            PreparedStatement pst2 = (PreparedStatement) cn2.prepareStatement("SELECT * FROM conceptos");
-            ResultSet rs2 = pst2.executeQuery();
-            
-            Integer id[] = new Integer[count];
-            
-            int count2 = 0;
-            int i = 0;
-            while (rs2.next()) {
-                id[count2] = Integer.parseInt(rs2.getString("ID"));
-                countArr[i] = count2;
-                i++;
-                count2++;
-            } 
-            
-            int arr[] = new int[10];
-            arr[0] = (int)(Math.random()*count);
-        
-            for(int k = 1; k < 10; k++){
-                arr[k] = (int)(Math.random()*count);
-                for(int j = 0; j < k; j++){
-                    if(arr[k] == arr[j]){
-                        k--;
-                    }
-                }
-            }
-            
-            Connection cn3 = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/conceptos_bd", "root", "");
-            PreparedStatement pst3 = (PreparedStatement) cn3.prepareStatement("select * from conceptos where ID = ?");
-            
-            for(int m = 0; m < count; m++){
-                for(int j = 0; j < count; j++){
-                    if(arr[m] == countArr[j]){
-                        try{
-                            String dei = "";
-                    
-                            dei = Integer.toString(id[arr[m]]);
-                            pst3.setString(1, dei);
-                    
-                            ResultSet rs3 = pst3.executeQuery();
-
-                            if(rs3.next()){
-                                field1[m].setText(rs3.getString("concepto"));
-                                field2[m].setText(rs3.getString("respuesta"));
-                            } else{
-                                JOptionPane.showMessageDialog(null, "Conexión no exitosa");
-                            }
-                        }catch(Exception r){}
-                    }
-                }
-            }
-            
-            pst.close();
-            cn.close();
-            pst2.close();
-            cn2.close();
-            pst3.close();
-            cn3.close();
-            
-        } catch (Exception e) {}
-    }
 }
+
